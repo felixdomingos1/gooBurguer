@@ -1,15 +1,16 @@
+"use client";
+
 import React from 'react';
 import Image from 'next/image';
 import { Burger } from '@/lib/types/burgers';
 
 interface BurgerCardProps {
     burger: Burger;
+    onAddToCart: () => void;
 }
 
-const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
-
+const BurgerCard: React.FC<BurgerCardProps> = ({ burger, onAddToCart }) => {
     const pathimage = burger.image ? `http://localhost:3000${burger.image}` : '/img/default-burger.jpg';
-    console.log("imagem aqui", pathimage);
     
     return (
         <div className="max-w-sm rounded overflow-hidden shadow-lg bg-white hover:shadow-xl transition-shadow duration-300">
@@ -62,6 +63,12 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                     <span className="mx-2 text-gray-300">|</span>
                     <span className="text-sm text-gray-600">{burger.preparationTime} min</span>
                 </div>
+                <button 
+                    onClick={onAddToCart}
+                    className="mt-4 w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded transition-colors duration-300"
+                >
+                    Add to Cart
+                </button>
             </div>
         </div>
     );
