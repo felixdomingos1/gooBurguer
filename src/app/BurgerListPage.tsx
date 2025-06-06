@@ -55,10 +55,7 @@ export default function BurgerListPage({ initialBurgers }: { initialBurgers: Bur
 
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-    const addToCart = (burger: Burger) => {
-        setCartItems([...cartItems, burger]);
-    };
+    }, []); 
 
     if (isLoading) {
         return (
@@ -91,19 +88,18 @@ export default function BurgerListPage({ initialBurgers }: { initialBurgers: Bur
 
     return (
         <div className="min-h-screen">
-            <Header cartCount={cartItems.length} isTransparent={isHeaderTransparent} />
-            {currentHeroBurger && (
+            {/* {currentHeroBurger && (
                 <CinematicHero
-                    burger={currentHeroBurger}
-                    key={currentHeroBurger.id}
+                burger={currentHeroBurger}
+                key={currentHeroBurger.id}
                 />
-            )}
+            )} */}
 
             <div className="container mx-auto px-4 py-8 pt-24">
                 <h1 className="text-3xl font-bold mb-8 text-center md:text-left">Nossos deliciosos Hamburgers</h1>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                     {burgers.map((burger: Burger) => (
-                        <BurgerCard key={burger.id} burger={burger} onAddToCart={() => addToCart(burger)} />
+                        <BurgerCard key={burger.id} burger={burger} />
                     ))}
                 </div>
             </div>
