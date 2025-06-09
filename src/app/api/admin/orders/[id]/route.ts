@@ -1,13 +1,9 @@
 import { prisma } from '@/lib/db';
 import { NextRequest, NextResponse } from 'next/server';
-
-interface Params {
-    id: string;
-}
-
+ 
 export async function PATCH(
     request: NextRequest,
-    { params }: { params: Params }
+    { params }: any
 ) {
     try {
         const { status } = await request.json();

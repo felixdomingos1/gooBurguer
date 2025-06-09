@@ -8,10 +8,9 @@ import { BurgerCategory } from '@/lib/types/burgers';
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: any
 ) {
-    try { 
-
+    try {
         const burger = await prisma.burger.findUnique({
             where: { id: params.id },
         });
@@ -28,7 +27,7 @@ export async function DELETE(
         });
 
         const uploadDir = path.join(process.cwd(), 'public');
-        
+
         if (burger.image) {
             const imagePath = path.join(uploadDir, burger.image);
             if (fs.existsSync(imagePath)) {
@@ -55,15 +54,20 @@ export async function DELETE(
         );
     }
 }
- 
+
+// Define a type for the context
+interface RouteContext {
+    params: { id: string };
+}
+
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    context: any // Explicitly type context here
 ) {
-    try { 
+    const { params } = context; // Destructure params from context
+    try {
         const formData = await request.formData();
-        
-        // Busca o hambúrguer existente
+
         const existingBurger = await prisma.burger.findUnique({
             where: { id: params.id },
         });
@@ -78,9 +82,9 @@ export async function PUT(
         // Processa as imagens
         const imageFile = formData.get('image') as File;
         const additionalImages = formData.getAll('additionalImages') as File[];
-        
+
         let imagePath = existingBurger.image;
-        if (imageFile.size > 0) {
+        if (imageFile && imageFile.size > 0) { // Added null/size check for imageFile
             // Remove a imagem antiga
             if (existingBurger.image) {
                 const oldImagePath = path.join(process.cwd(), 'public', existingBurger.image);
@@ -106,7 +110,7 @@ export async function PUT(
             }
             // Salva as novas imagens adicionais
             additionalImagePaths = await Promise.all(
-                additionalImages.map((file, index) => saveImage(file, `additional-${index}`))
+                additionalImages.filter(file => file.size > 0).map((file, index) => saveImage(file, `additional-${index}`)) // Added filter
             );
         }
 
@@ -144,7 +148,7 @@ export async function PUT(
 
 async function saveImage(file: File, prefix: string): Promise<string> {
     if (!file || file.size === 0) return '';
-    
+
     const uploadDir = path.join(process.cwd(), 'public', 'burgers');
     if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
@@ -153,8 +157,8 @@ async function saveImage(file: File, prefix: string): Promise<string> {
     const buffer = await file.arrayBuffer();
     const filename = `${prefix}-${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
     const filePath = path.join(uploadDir, filename);
-    
+
     await fs.promises.writeFile(filePath, Buffer.from(buffer));
-    
+
     return `/burgers/${filename}`;
 }
