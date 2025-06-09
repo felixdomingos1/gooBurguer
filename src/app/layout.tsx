@@ -1,23 +1,19 @@
-// app/layout.tsx
-import { authOptions } from '@/lib/auth';
-import { getServerSession } from 'next-auth';
+import AuthInitializer from '@/components/AuthInitializer';
 import './globals.css';
-import AuthProvider from '@/components/AuthProvider';
 
-export default async function RootLayout({
+
+export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  const session = await getServerSession(authOptions);
-
   return (
     <html lang="en">
       <body>
-        <AuthProvider session={session}>
+        <AuthInitializer>
           {children}
-        </AuthProvider>
+        </AuthInitializer>
       </body>
     </html>
-  );
+  )
 }

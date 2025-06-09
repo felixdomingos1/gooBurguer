@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useAuthStore } from "@/stores/authStore";
 
 interface AuthModalProps {
   show: boolean;
@@ -19,6 +20,7 @@ export default function AuthModal({ show, onClose, type }: AuthModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();
+  const { login, clearError } = useAuthStore()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,36 +28,18 @@ export default function AuthModal({ show, onClose, type }: AuthModalProps) {
     setError("");
 
     if (type === "login") {
-      try {
-        const result = await signIn("credentials", {
-          redirect: false,
-          email,
-          password,
-          callbackUrl: "/gooburger",
-        });
-
-        if (result?.error) {
-          setError(result.error);
+      const success = await login(email, password)
+      if (success) {
+        onClose()
+        const { user } = useAuthStore.getState()
+        if (user?.role === 'ADMIN') {
+          router.push('/admin')
         } else {
-          onClose();
-          router.refresh();
-
-          const response = await fetch("/api/auth/session");
-          if (response.ok) {
-            const session = await response.json();
-            if (session.user?.role === "ADMIN") {
-              router.push("/admin");
-            } else {
-              router.push("/gooburger");
-            }
-          }else {
-            router.push("/");
-          }
+          router.push('/gooburger')
         }
-      } catch (err) {
-        setError("Ocorreu um erro durante o login");
       }
     } else {
+
       try {
         const response = await fetch("/api/auth/register", {
           method: "POST",
@@ -74,22 +58,27 @@ export default function AuthModal({ show, onClose, type }: AuthModalProps) {
 
         const data = await response.json();
 
-        if (response.ok) {
-          const result = await signIn("credentials", {
-            redirect: false,
-            email,
-            password,
-          });
-
-          if (result?.error) {
-            setError("Erro ao fazer login após registro");
-          } else {
-            onClose();
-            router.push("/gooburger");
-          }
-        } else {
+        if (!response.ok) {
+          const data = await response.json();
           setError(data.error || "Erro no cadastro");
+          setIsLoading(false);
+          return;
         }
+
+        const loginResult = await signIn("credentials", {
+          redirect: false,
+          email,
+          password,
+        });
+
+        if (loginResult?.error) {
+          setError("Registro concluído, mas falha no login automático");
+          setIsLoading(false);
+          return;
+        }
+
+        onClose();
+        router.push("/gooburger");
       } catch (error) {
         console.error("Registration error:", error);
         setError("Erro no cadastro");

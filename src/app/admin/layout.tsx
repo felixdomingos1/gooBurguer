@@ -1,6 +1,7 @@
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { useAuthStore } from '@/stores/authStore';
 
 export default async function AdminLayout({
   children,
@@ -8,8 +9,9 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   const session = await getServerSession(authOptions);
+    const { initializeAuth, isAuthenticated, isLoading, user } = useAuthStore()
   
-  if (!session || session.user.role !== 'ADMIN') {
+  if (!user || user.role !== 'ADMIN') {
     redirect('/login');
   }
 

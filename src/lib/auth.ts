@@ -33,7 +33,7 @@ declare module "next-auth/jwt" {
 
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
-    providers: [    
+    providers: [
         CredentialsProvider({
             name: "Credentials",
             credentials: {
@@ -41,8 +41,10 @@ export const authOptions: NextAuthOptions = {
                 password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
+                console.log('Tentativa de login com:', credentials?.email, credentials?.password ? "senha fornecida" : "sem senha");
+
                 if (!credentials?.email || !credentials?.password) {
-                    return null;
+                    throw new Error("Email e senha são obrigatórios");
                 }
 
                 const user = await prisma.user.findUnique({
@@ -53,13 +55,16 @@ export const authOptions: NextAuthOptions = {
                     throw new Error("Usuário não encontrado");
                 }
 
-                const isValid = await bcrypt.compare(
-                    credentials.password,
-                    user.password
-                );
-
-                 if (!isValid) {
-                    throw new Error("Senha incorreta");
+                if (!user.password.startsWith("$2b$")) {
+                    if (user.password !== credentials.password) {
+                        throw new Error("Senha incorreta");
+                    }
+                    console.warn("AVISO: Usuário com senha não hashada - ", user.email);
+                } else {
+                    const isValid = await bcrypt.compare(credentials.password, user.password);
+                    if (!isValid) {
+                        throw new Error("Senha incorreta");
+                    }
                 }
 
                 return {
@@ -94,15 +99,16 @@ export const authOptions: NextAuthOptions = {
             return session;
         },
     },
-    
+
     session: {
         strategy: "jwt",
-        maxAge: 30 * 24 * 60 * 60, 
+        maxAge: 30 * 24 * 60 * 60,
     },
-    
+
     pages: {
-        signIn: "/", 
+        signIn: "/",
+        error: "/auth/error",
     },
-    
     secret: process.env.NEXTAUTH_SECRET,
+    debug: process.env.NODE_ENV === "development",
 };

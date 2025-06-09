@@ -1,56 +1,40 @@
-import { withAuth } from "next-auth/middleware";
-import { NextResponse } from "next/server";
+import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { verifyToken } from './lib/jwt'
 
-export default withAuth(
-  function middleware(req) {
-    const { pathname } = req.nextUrl;
-    const token = req.nextauth.token;
+const protectedRoutes = ['/admin']
+const authRoutes = ['/login']
 
-    // Se não estiver autenticado e tentar acessar área protegida
-    if (!token && (pathname.startsWith("/admin") || pathname.startsWith("/gooburger"))) {
-      return NextResponse.redirect(new URL("/?auth=login", req.url));
+export function middleware(request: NextRequest) {
+    const token = request.cookies.get('auth')?.value
+    const { pathname } = request.nextUrl
+
+    const isProtectedRoute = protectedRoutes.some(route =>
+        pathname.startsWith(route))
+
+    const isAuthRoute = authRoutes.includes(pathname)
+
+    if (isAuthRoute && token) {
+        return NextResponse.redirect(new URL('/gooburger', request.url))
     }
 
-    // Se for admin tentando acessar área de usuário
-    if (pathname.startsWith("/gooburger") && token?.role === "ADMIN") {
-      return NextResponse.redirect(new URL("/admin", req.url));
-    }
-
-    // Se for usuário tentando acessar área de admin
-    if (pathname.startsWith("/admin") && token?.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/gooburger", req.url));
-    }
-
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        const { pathname } = req.nextUrl;
-        
-        // Permitir acesso à página inicial e rotas de auth
-        if (pathname === "/" || pathname.startsWith("/api/auth")) {
-          return true;
+    if (isProtectedRoute) {
+        if (!token) {
+            return NextResponse.redirect(new URL('/?auth=login', request.url))
         }
-        
-        // Rotas protegidas requerem token
-        if (pathname.startsWith("/admin") || pathname.startsWith("/gooburger")) {
-          return !!token;
-        }
-        
-        return true;
-      },
-    },
-    pages: {
-      signIn: "/?auth=login",
-      error: "/?auth=login",
-    },
-  }
-);
 
-export const config = {
-  matcher: [
-    "/admin/:path*",
-    "/gooburger/:path*",
-  ],
-};
+        const payload = verifyToken(token)
+        if (!payload) {
+            const response = NextResponse.redirect(new URL('/?auth=login', request.url))
+            response.cookies.delete('auth')
+            return response
+        }
+
+        // Verifica se o usuário tem permissão para a rota admin
+        if (pathname.startsWith('/admin') && payload.role !== 'ADMIN') {
+            return NextResponse.redirect(new URL('/unauthorized', request.url))
+        }
+    }
+
+    return NextResponse.next()
+}

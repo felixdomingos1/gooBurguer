@@ -1,6 +1,5 @@
 "use client";
 
-import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -23,35 +22,13 @@ interface Order {
 }
 
 export default function GooburgerDashboard() {
-  const { data: session, status } = useSession();
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"active" | "history">("active");
 
-  useEffect(() => {
-    if (status === "loading") return;
-    if (!session) {
-      router.push("/?auth=login");
-      return;
-    }
-    fetchOrders();
-  }, [session, status]);
-
-  const fetchOrders = async () => {
-    try {
-      const response = await fetch("/api/user/orders");
-      if (response.ok) {
-        const data = await response.json();
-        setOrders(data);
-      }
-    } catch (error) {
-      console.error("Error fetching orders:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  
+ 
   const getStatusColor = (status: string) => {
     const colors = {
       PENDING: "bg-yellow-100 text-yellow-800",
@@ -102,7 +79,7 @@ export default function GooburgerDashboard() {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <h1 className="text-2xl font-bold text-amber-600">GooBurger</h1>
-              <span className="ml-4 text-gray-600">Bem-vindo, {session?.user?.name}!</span>
+              <span className="ml-4 text-gray-600">Bem-vindo, </span>
             </div>
             <div className="flex items-center space-x-4">
               <button
@@ -112,7 +89,6 @@ export default function GooburgerDashboard() {
                 Fazer pedido
               </button>
               <button
-                onClick={() => signOut({ callbackUrl: "/" })}
                 className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
               >
                 Sair
