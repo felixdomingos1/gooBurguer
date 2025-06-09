@@ -1,14 +1,15 @@
+"use client";
+import { useEffect, useState } from "react";
 import BurgerListPage from "./BurgerListPage";
 
-async function getBurgers() {
-  const res = await fetch('http://localhost:3000/api/burgers?page=1', { 
-    next: { revalidate: 60 } 
-  });
-  if (!res.ok) throw new Error('Failed to fetch burgers');
-  return res.json();
-}
+export default function Home() {
+  const [burgers, setBurgers] = useState([]);
 
-export default async function Home() {
-  const { results } = await getBurgers();
-  return <BurgerListPage initialBurgers={results} />;
+  useEffect(() => {
+    fetch('/api/burgers?page=1')
+      .then(res => res.json())
+      .then(data => setBurgers(data.results));
+  }, []);
+
+  return <BurgerListPage initialBurgers={burgers} />;
 }

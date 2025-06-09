@@ -236,14 +236,7 @@ export default function AuthModal({ show, onClose, type }: AuthModalProps) {
               </button>
             </>
           )}
-        </div>
-
-        {type === "login" && (
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm">
-            <p className="font-medium mb-1">Para testar:</p>
-            <p><strong>Admin:</strong> admin@gooburger.com / @gooburger2025</p>
-          </div>
-        )}
+        </div> 
       </div>
     </div>
   );
