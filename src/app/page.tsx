@@ -1,4 +1,3 @@
-// app/page.tsx (Server Component)
 import BurgerListPage from "./BurgerListPage";
 
 async function getBurgers() {

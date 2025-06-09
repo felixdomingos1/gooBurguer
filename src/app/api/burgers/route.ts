@@ -1,17 +1,8 @@
 import { prisma } from '@/lib/db';
-import { Burger, BurgerIngredient, BurgerListResponse } from '@/lib/types/burgers';
+import { Burger, BurgerCategory, BurgerIngredient, BurgerListResponse } from '@/lib/types/burgers';
 import { NextResponse } from 'next/server';
 
-
-export const BurgerCategory = {
-  CLASSIC: 'CLASSIC',
-  PREMIUM: 'PREMIUM',
-  VEGETARIAN: 'VEGETARIAN',
-  VEGAN: 'VEGAN',
-  SIGNATURE: 'SIGNATURE',
-} as const;
-
-export type BurgerCategory = keyof typeof BurgerCategory;
+ 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get('page') || '1');
