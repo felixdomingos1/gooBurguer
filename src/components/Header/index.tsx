@@ -5,6 +5,7 @@ import { FiMenu, FiX, FiHome, FiInfo, FiPhone, FiUser } from "react-icons/fi";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import AuthModal from "../AuthModal";
+import Image from "next/image";
 
 interface HeaderProps {
   isTransparent?: boolean;
@@ -57,9 +58,13 @@ export default function Header({ isTransparent = false, heroHeight = 0 }: Header
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
             {/* Logo */}
-            <Link href="/" className="flex items-center">
-              <span className={`text-2xl font-bold ${textColor} transition-colors`}>Goo</span>
-              <span className={`text-2xl font-bold text-amber-500 transition-colors`}>Burger</span>
+
+            <Link href="/" className="flex items-center space-x-2 mb-4">
+              <Image src="/images/6.png" alt="GooBurger Logo" width={40} height={40} />
+              <div>
+                <span className="text-2xl font-bold text-amber-500">Goo</span>
+                <span className="text-2xl font-bold text-green-500">Burger</span>
+              </div>
             </Link>
 
             {/* Desktop Navigation */}

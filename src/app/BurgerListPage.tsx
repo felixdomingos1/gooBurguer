@@ -5,6 +5,7 @@ import { Burger } from "@/lib/types/burgers";
 import BurgerCard from "@/components/burgerCard/card";
 import Header from "@/components/Header";
 import BurgerHero from "@/components/hero/cinematic";
+import Footer from "@/components/Footer";
 
 export default function BurgerListPage({ initialBurgers }: { initialBurgers: Burger[] }) {
     const [burgers, setBurgers] = useState<Burger[]>(initialBurgers || []);
@@ -93,6 +94,7 @@ export default function BurgerListPage({ initialBurgers }: { initialBurgers: Bur
                     ))}
                 </div>
             </div>
+            <Footer />
         </div>
     );
 }
