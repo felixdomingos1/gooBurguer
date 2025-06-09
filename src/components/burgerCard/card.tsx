@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { Burger } from '@/lib/types/burgers';
-import { QRCodeSVG } from 'qrcode.react'; // Importação corrigida
+import { QRCodeSVG } from 'qrcode.react';
 import { FiX, FiShoppingBag, FiClock } from 'react-icons/fi';
 import { FaWhatsapp } from 'react-icons/fa';
 
@@ -15,10 +15,8 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const pathimage = burger.image ? `http://localhost:3000${burger.image}` : '/img/default-burger.jpg';
     
-    const handleOrderClick = () => {
-        console.log("Pedir", burger.name);
-        alert(`Pedir ${burger.name}`);
-        
+    const handleOrderClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
         setIsModalOpen(true);
     };
 
@@ -38,6 +36,9 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                 className="max-w-sm rounded-xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-[1.02] relative"
                 onClick={handleOrderClick}
                 aria-label={`Pedir ${burger.name}`}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && handleOrderClick(e as any)}
             >
                 <div className="relative h-48 w-full">
                     <Image
@@ -72,7 +73,7 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                 </div>
                 <div className="px-6 pt-2 pb-4">
                     <div className="flex flex-wrap gap-2 mb-3">
-                        {burger.tags.map((tag, index) => (
+                        {burger.tags?.map((tag, index) => (
                             <span
                                 key={index}
                                 className="inline-block bg-gray-100 rounded-full px-3 py-1 text-xs font-semibold text-gray-700"
@@ -99,7 +100,7 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                         <button 
                             onClick={(e) => {
                                 e.stopPropagation();
-                                handleOrderClick();
+                                handleOrderClick(e);
                             }}
                             className="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300 flex items-center"
                             aria-label={`Botão para pedir ${burger.name}`}
@@ -136,6 +137,7 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                                     fill
                                     className="object-cover rounded-t-xl"
                                     sizes="100vw"
+                                    priority
                                 />
                             </div>
                         </div>

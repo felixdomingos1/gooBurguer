@@ -1,0 +1,103 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "sqlite"
+    url      = "file:./dev.db"
+}
+
+model Burger {
+    id              String         @id @default(uuid())
+    name            String
+    description     String
+    price           Float
+    originalPrice   Float?
+    image           String
+    images          String // Store as JSON string
+    category        BurgerCategory
+    ingredients     String // Store as JSON string
+    preparationTime Int
+    calories        Int?
+    isAvailable     Boolean        @default(true)
+    isFeatured      Boolean        @default(false)
+    isNew           Boolean        @default(false)
+    ratingAverage   Float?         @default(0)
+    ratingCount     Int?           @default(0)
+    tags            String // Store as JSON string
+    createdAt       DateTime       @default(now())
+    updatedAt       DateTime       @updatedAt
+    reviews         Review[]
+    OrderItem       OrderItem[]
+}
+
+enum BurgerCategory {
+    CLASSIC
+    PREMIUM
+    VEGETARIAN
+    VEGAN
+    SIGNATURE
+}
+
+model Review {
+    id        String   @id @default(uuid())
+    burger    Burger   @relation(fields: [burgerId], references: [id])
+    burgerId  String
+    userId    String
+    userName  String
+    rating    Int
+    comment   String
+    createdAt DateTime @default(now())
+}
+
+model User {
+    id        String   @id @default(uuid())
+    name      String
+    email     String   @unique
+    password  String
+    address   String?
+    phone     String?
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+    orders    Order[]
+    role      UserRole @default(USER)
+}
+
+enum UserRole {
+    ADMIN
+    USER
+    DELIVERY
+}
+
+model Order {
+    id        String      @id @default(uuid())
+    user      User        @relation(fields: [userId], references: [id])
+    userId    String
+    items     OrderItem[]
+    total     Float
+    status    OrderStatus @default(PENDING)
+    address   String
+    phone     String
+    notes     String?
+    createdAt DateTime    @default(now())
+    updatedAt DateTime    @updatedAt
+}
+
+model OrderItem {
+    id             String  @id @default(uuid())
+    order          Order   @relation(fields: [orderId], references: [id])
+    orderId        String
+    burger         Burger  @relation(fields: [burgerId], references: [id])
+    burgerId       String
+    quantity       Int     @default(1)
+    price          Float
+    specialRequest String?
+}
+
+enum OrderStatus {
+    PENDING
+    PREPARING
+    READY
+    DELIVERED
+    CANCELLED
+}

@@ -1,106 +1,142 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Burger } from "@/lib/types/burgers";
-import { motion } from "framer-motion";
-import OrderForm from "../OrderForm/OrderForm";
-import { HeroButtons } from "../HeroButtons";
-import { HeroContent } from "../HeroContent";
-import { HeroImage } from "../HeroImage";
-import Header from "../Header";
+import { Button } from "../ui/button";
+
+interface BurgerHeroProps {
+  burgers: Burger[];
+  onAddToCart: (burger: Burger) => void;
+}
 
 interface HeroProps {
   burger: Burger;
 }
 
-export default function CinematicHero({ burger }: HeroProps) {
-  const [showOrderForm, setShowOrderForm] = useState(false);
-  const [cartItems, setCartItems] = useState<Burger[]>([]);
+export default function BurgerHero({ burgers, onAddToCart }: BurgerHeroProps) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
-  const [isHeaderTransparent, setIsHeaderTransparent] = useState(true);
-  const heroRef = useRef<HTMLDivElement>(null);
-  const handleOrderNow = () => {
-    setShowOrderForm(true);
-  };
+  // Efeito para rotacionar os hambúrgueres automaticamente
+  useEffect(() => {
+    if (burgers.length <= 1) return;
 
-  const handleAddToCart = () => {
-    console.log("Add to cart clicked for", burger.name);
-  };
+    const interval = setInterval(() => {
+      setIsTransitioning(true);
+      setTimeout(() => {
+        setCurrentIndex((prev) => (prev + 1) % burgers.length);
+        setIsTransitioning(false);
+      }, 500); // Tempo da animação de transição
+    }, 8000); // Troca a cada 8 segundos
 
-  const imagePath = burger.image
-    ? `http://localhost:3000${burger.image}`
+    return () => clearInterval(interval);
+  }, [burgers.length]);
+
+  if (burgers.length === 0) return null;
+
+  const currentBurger = burgers[currentIndex];
+  const hasDiscount = currentBurger.originalPrice !== null;
+
+  const imagePath = currentBurger.image
+    ? `http://localhost:3000${currentBurger.image}`
     : "/img/default-burger.jpg";
+  "use client";
 
   return (
-    <section
-      className="relative w-full h-[90vh] min-h-[600px] max-h-[1200px] overflow-hidden"
-      style={{ marginTop: '-4rem' }} // Compensa o header
-    >
-      <Header cartCount={cartItems.length} isTransparent={isHeaderTransparent} />
+    <section className="relative h-screen max-h-[800px] min-h-[600px] w-full overflow-hidden">
+      {/* Imagem de fundo */}
+      <div className="absolute inset-0 z-0">
+        <Image
+          src={imagePath}
+          alt={currentBurger.name}
+          fill
+          className={`object-cover transition-opacity duration-500 ${isTransitioning ? "opacity-30" : "opacity-100"
+            }`}
+          priority
+        />
+        <div className="absolute inset-0 bg-black/40" />
+      </div>
 
-      <HeroImage imagePath={imagePath} alt={burger.name} />
+      {/* Conteúdo */}
+      <div className="container relative z-10 flex h-full items-center px-4">
+        <div
+          className={`max-w-2xl text-white transition-all duration-500 ${isTransitioning ? "translate-x-[-50px] opacity-0" : "translate-x-0 opacity-100"
+            }`}
+        >
+          {currentBurger.tags?.includes("new") && (
+            <span className="mb-4 inline-block rounded-full bg-green-500 px-4 py-1 text-sm font-bold uppercase">
+              Novo!
+            </span>
+          )}
 
-      <div className="absolute inset-0 z-10 flex items-center justify-center pt-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col justify-center">
-          <div className="space-y-6 sm:space-y-8 relative z-20">
-            <HeroContent
-              name={burger.name}
-              description={burger.description || "A delicious burger made with premium ingredients"}
-              price={burger.price}
-            />
-            <HeroButtons
-              onOrderNow={handleOrderNow}
-              onAddToCart={handleAddToCart}
-            />
+          <h1 className="mb-4 text-5xl font-bold drop-shadow-lg md:text-6xl lg:text-7xl">
+            {currentBurger.name}
+          </h1>
+
+          <p className="mb-6 text-lg drop-shadow-md md:text-xl">
+            {currentBurger.description}
+          </p>
+
+          <div className="mb-8 flex items-center gap-4">
+            <div className="flex items-baseline gap-2">
+              {hasDiscount && (
+                <span className="text-xl line-through opacity-70">
+                  R$ {currentBurger.originalPrice?.toFixed(2)}
+                </span>
+              )}
+              <span className="text-3xl font-bold">
+                R$ {currentBurger.price.toFixed(2)}
+              </span>
+            </div>
+
+            {currentBurger.calories && (
+              <span className="rounded-full bg-white/20 px-3 py-1 text-sm">
+                {currentBurger.calories} kcal
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <Button
+              size="lg"
+              onClick={() => onAddToCart(currentBurger)}
+              className="bg-green-900 hover:bg-primary/90"
+            >
+              Pedir Agora
+            </Button>
+
+            <Button
+              size="lg"
+              variant="outline"
+              className="bg-transparent border-white text-white hover:bg-white/10"
+            >
+              Personalizar
+            </Button>
           </div>
         </div>
       </div>
 
-      {showOrderForm && (
-        <OrderForm
-          burger={burger}
-          onClose={() => setShowOrderForm(false)}
-        />
+      {/* Indicadores */}
+      {burgers.length > 1 && (
+        <div className="absolute bottom-8 left-0 right-0 z-10 flex justify-center gap-2">
+          {burgers.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => {
+                setIsTransitioning(true);
+                setTimeout(() => {
+                  setCurrentIndex(index);
+                  setIsTransitioning(false);
+                }, 500);
+              }}
+              className={`h-2 w-8 rounded-full transition-all ${index === currentIndex ? "bg-white" : "bg-white/50"
+                }`}
+              aria-label={`Ir para ${burgers[index].name}`}
+            />
+          ))}
+        </div>
       )}
-
-      <motion.div
-        className="absolute top-1/4 left-1/4 w-4 h-4 rounded-full bg-amber-400 blur-xl opacity-70 z-0"
-        animate={{
-          scale: [1, 1.5, 1],
-          opacity: [0.7, 0.4, 0.7]
-        }}
-        transition={{
-          duration: 5,
-          repeat: Infinity,
-          ease: "easeInOut"
-        }}
-      />
-      <motion.div
-        className="absolute bottom-1/3 right-1/3 w-6 h-6 rounded-full bg-orange-500 blur-xl opacity-50 z-0"
-        animate={{
-          scale: [1, 1.8, 1],
-          opacity: [0.5, 0.2, 0.5]
-        }}
-        transition={{
-          duration: 7,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 1
-        }}
-      />
-      <motion.div
-        className="absolute top-1/3 right-1/4 w-3 h-3 rounded-full bg-red-500 blur-lg opacity-60 z-0"
-        animate={{
-          y: [0, -20, 0],
-          opacity: [0.6, 0.3, 0.6]
-        }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          ease: "easeInOut",
-          delay: 0.5
-        }}
-      />
     </section>
   );
 }
