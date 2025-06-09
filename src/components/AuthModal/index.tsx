@@ -17,24 +17,43 @@ export default function AuthModal({ show, onClose, type }: AuthModalProps) {
   const [address, setAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
     if (type === "login") {
-      const result = await signIn("credentials", {
-        redirect: false,
-        email,
-        password,
-      });
+      try {
+        const result = await signIn("credentials", {
+          redirect: false,
+          email,
+          password,
+          callbackUrl: "/gooburger",
+        });
 
-      if (result?.error) {
-        alert("Login failed");
-      } else {
-        onClose();
-        router.refresh();
+        if (result?.error) {
+          setError(result.error);
+        } else {
+          onClose();
+          router.refresh();
+
+          const response = await fetch("/api/auth/session");
+          if (response.ok) {
+            const session = await response.json();
+            if (session.user?.role === "ADMIN") {
+              router.push("/admin");
+            } else {
+              router.push("/gooburger");
+            }
+          }else {
+            router.push("/");
+          }
+        }
+      } catch (err) {
+        setError("Ocorreu um erro durante o login");
       }
     } else {
       try {
@@ -53,6 +72,8 @@ export default function AuthModal({ show, onClose, type }: AuthModalProps) {
           }),
         });
 
+        const data = await response.json();
+
         if (response.ok) {
           const result = await signIn("credentials", {
             redirect: false,
@@ -61,47 +82,69 @@ export default function AuthModal({ show, onClose, type }: AuthModalProps) {
           });
 
           if (result?.error) {
-            alert("Registration failed");
+            setError("Erro ao fazer login após registro");
           } else {
             onClose();
-            router.refresh();
+            router.push("/gooburger");
           }
         } else {
-          alert("Registration failed");
+          setError(data.error || "Erro no cadastro");
         }
       } catch (error) {
-        console.error(error);
-        alert("Registration failed");
+        console.error("Registration error:", error);
+        setError("Erro no cadastro");
       }
     }
 
     setIsLoading(false);
   };
 
+  const resetForm = () => {
+    setEmail("");
+    setPassword("");
+    setName("");
+    setAddress("");
+    setPhone("");
+    setError("");
+  };
+
   if (!show) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">
-            {type === "login" ? "Login" : "Register"}
+            {type === "login" ? "Login" : "Cadastro"}
           </h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
+          <button
+            onClick={() => {
+              onClose();
+              resetForm();
+            }}
+            className="text-gray-500 hover:text-gray-700 text-2xl"
+          >
             ✕
           </button>
         </div>
 
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            {error}
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="space-y-4">
           {type === "register" && (
             <div>
-              <label className="block text-sm font-medium mb-1">Name</label>
+              <label className="block text-sm font-medium mb-1">Nome</label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 required
+                disabled={isLoading}
               />
             </div>
           )}
@@ -112,43 +155,48 @@ export default function AuthModal({ show, onClose, type }: AuthModalProps) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               required
+              disabled={isLoading}
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
+            <label className="block text-sm font-medium mb-1">Senha</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 focus:border-transparent"
               required
+              disabled={isLoading}
+              minLength={6}
             />
           </div>
 
           {type === "register" && (
             <>
               <div>
-                <label className="block text-sm font-medium mb-1">Address</label>
+                <label className="block text-sm font-medium mb-1">Endereço</label>
                 <input
                   type="text"
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   required
+                  disabled={isLoading}
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Phone</label>
+                <label className="block text-sm font-medium mb-1">Telefone</label>
                 <input
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full p-2 border rounded"
+                  className="w-full p-2 border rounded focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                   required
+                  disabled={isLoading}
                 />
               </div>
             </>
@@ -156,42 +204,57 @@ export default function AuthModal({ show, onClose, type }: AuthModalProps) {
 
           <button
             type="submit"
-            className="w-full bg-amber-500 text-white py-2 rounded hover:bg-amber-600"
+            className="w-full bg-amber-500 text-white py-2 rounded hover:bg-amber-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             disabled={isLoading}
           >
             {isLoading
               ? type === "login"
-                ? "Logging in..."
-                : "Registering..."
+                ? "Entrando..."
+                : "Cadastrando..."
               : type === "login"
-              ? "Login"
-              : "Register"}
+                ? "Entrar"
+                : "Cadastrar"}
           </button>
         </form>
 
         <div className="mt-4 text-center text-sm">
           {type === "login" ? (
             <>
-              Don't have an account?{" "}
+              Não tem uma conta?{" "}
               <button
-                onClick={() => router.push("?auth=register")}
+                onClick={() => {
+                  resetForm();
+                  router.push("?auth=register");
+                }}
                 className="text-amber-500 hover:underline"
+                disabled={isLoading}
               >
-                Register
+                Cadastre-se
               </button>
             </>
           ) : (
             <>
-              Already have an account?{" "}
+              Já tem uma conta?{" "}
               <button
-                onClick={() => router.push("?auth=login")}
+                onClick={() => {
+                  resetForm();
+                  router.push("?auth=login");
+                }}
                 className="text-amber-500 hover:underline"
+                disabled={isLoading}
               >
-                Login
+                Faça login
               </button>
             </>
           )}
         </div>
+
+        {type === "login" && (
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded text-sm">
+            <p className="font-medium mb-1">Para testar:</p>
+            <p><strong>Admin:</strong> admin@gooburger.com / @gooburger2025</p>
+          </div>
+        )}
       </div>
     </div>
   );

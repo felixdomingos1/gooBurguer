@@ -1,8 +1,17 @@
 import { prisma } from '@/lib/db';
-import { Burger, BurgerListResponse } from '@/lib/types/burgers';
-import { BurgerCategory } from '@prisma/client';
+import { Burger, BurgerIngredient, BurgerListResponse } from '@/lib/types/burgers';
 import { NextResponse } from 'next/server';
 
+
+export const BurgerCategory = {
+  CLASSIC: 'CLASSIC',
+  PREMIUM: 'PREMIUM',
+  VEGETARIAN: 'VEGETARIAN',
+  VEGAN: 'VEGAN',
+  SIGNATURE: 'SIGNATURE',
+} as const;
+
+export type BurgerCategory = keyof typeof BurgerCategory;
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get('page') || '1');
@@ -12,8 +21,8 @@ export async function GET(request: Request) {
 
   try {
     const where = {
-      ...(category && { 
-        category: BurgerCategory[category.toUpperCase() as keyof typeof BurgerCategory] 
+      ...(category && {
+        category: category.toUpperCase() as BurgerCategory
       }),
       isAvailable: true,
     };
@@ -32,11 +41,11 @@ export async function GET(request: Request) {
 
     const response: BurgerListResponse = {
       page,
-      results: burgers.map((burger) => ({
+      results: burgers.map((burger:any) => ({
         ...burger,
-        ingredients: JSON.parse(burger.ingredients),
-        images: JSON.parse(burger.images),
-        tags: JSON.parse(burger.tags),
+        ingredients: JSON.parse(burger.ingredients || '[]') as BurgerIngredient[],
+        images: JSON.parse(burger.images || '[]') as string[],
+        tags: JSON.parse(burger.tags || '[]') as string[],
         ratingAverage: burger.ratingAverage || 0,
         ratingCount: burger.ratingCount || 0,
       })),

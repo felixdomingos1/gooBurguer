@@ -1,4 +1,3 @@
-export type BurgerCategory = 'CLASSIC' | 'PREMIUM' | 'VEGETARIAN' | 'VEGAN' | 'SIGNATURE';
 
 export interface BurgerIngredient {
   name: string;
@@ -14,9 +13,9 @@ export interface Burger {
   price: number;
   originalPrice: number | null;
   image: string;
-  images: string[]; // Stored as JSON in DB
+  images: string;
   category: BurgerCategory;
-  ingredients: BurgerIngredient[]; // Stored as JSON in DB
+  ingredients: string; // Stored as JSON in DB
   preparationTime: number;
   calories?: number | null;
   isAvailable: boolean;
@@ -24,7 +23,7 @@ export interface Burger {
   isNew: boolean;
   ratingAverage?: number;
   ratingCount?: number;
-  tags: string[]; // Stored as JSON in DB
+  tags: string; // Stored as JSON in DB
   createdAt: Date | string;
   updatedAt: Date | string;
   reviews?: BurgerReview[]; // Optional: you might or might not include this
@@ -39,7 +38,11 @@ export interface BurgerReview {
   comment: string;
   createdAt: Date | string;
 }
-
+export interface ParsedBurger extends Omit<Burger, 'images' | 'tags' | 'ingredients'> {
+  images: string[];
+  tags: string[];
+  ingredients: BurgerIngredient[];
+}
 export interface BurgerListResponse {
   page: number;
   results: Burger[];
@@ -47,3 +50,13 @@ export interface BurgerListResponse {
   totalResults: number;
   categories: BurgerCategory[];
 }
+
+export const BurgerCategory = {
+  CLASSIC: 'CLASSIC',
+  PREMIUM: 'PREMIUM',
+  VEGETARIAN: 'VEGETARIAN',
+  VEGAN: 'VEGAN',
+  SIGNATURE: 'SIGNATURE',
+} as const;
+
+export type BurgerCategory = keyof typeof BurgerCategory;

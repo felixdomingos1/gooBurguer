@@ -1,9 +1,8 @@
-"use client";
-
-import { SessionProvider } from "next-auth/react";
-import { authOptions } from "@/lib/auth";
-import { getServerSession } from "next-auth";
-import "./globals.css";
+// app/layout.tsx
+import { authOptions } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
+import './globals.css';
+import AuthProvider from '@/components/AuthProvider';
 
 export default async function RootLayout({
   children,
@@ -15,9 +14,9 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body>
-        <SessionProvider session={session}>
+        <AuthProvider session={session}>
           {children}
-        </SessionProvider>
+        </AuthProvider>
       </body>
     </html>
   );

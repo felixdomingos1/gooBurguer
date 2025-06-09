@@ -1,7 +1,15 @@
-import { BurgerCategory, PrismaClient } from '@prisma/client';
-import path from 'path';
+import { prisma } from '@/lib/db';
+import { hash } from 'bcryptjs';
 
-const prisma = new PrismaClient();
+export const BurgerCategory = {
+  CLASSIC: 'CLASSIC',
+  PREMIUM: 'PREMIUM',
+  VEGETARIAN: 'VEGETARIAN',
+  VEGAN: 'VEGAN',
+  SIGNATURE: 'SIGNATURE',
+} as const;
+
+export type BurgerCategory = keyof typeof BurgerCategory;
 
 const burgers = [
   {
@@ -108,15 +116,28 @@ const burgers = [
 
 async function main() {
   console.log('Seeding database...');
-  
+
+  const adminPassword = await hash('@gooburger2025', 12);
+  await prisma.user.upsert({
+    where: { email: 'admin@gooburger.com' },
+    update: {},
+    create: {
+      name: 'Admin',
+      email: 'admin@gooburger.com',
+      password: adminPassword,
+      role: 'ADMIN',
+      address: 'Endereço do restaurante',
+      phone: '11999999999'
+    }
+  });
   await prisma.burger.deleteMany();
-  
+
   for (const burger of burgers) {
     await prisma.burger.create({
       data: burger,
     });
   }
-  
+
   console.log('Seeding completed!');
 }
 

@@ -1,4 +1,3 @@
-import { OrderStatus } from "@prisma/client";
 import { Burger } from "./burgers";
 
 export interface OrderItem {
@@ -30,3 +29,13 @@ export interface OrderCardProps {
   showUser?: boolean;
   showEstimatedTime?: string;
 }
+
+
+export type OrderStatus = 
+  | 'PENDING'
+  | 'CONFIRMED'
+  | 'PREPARING'
+  | 'READY'
+  | 'OUT_FOR_DELIVERY'
+  | 'DELIVERED'
+  | 'CANCELLED';

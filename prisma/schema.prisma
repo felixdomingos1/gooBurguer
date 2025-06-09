@@ -61,6 +61,7 @@ model User {
     updatedAt DateTime @updatedAt
     orders    Order[]
     role      UserRole @default(USER)
+    isTemp    Boolean  @default(false) // Para identificar usuários temporários
 }
 
 enum UserRole {
@@ -70,17 +71,22 @@ enum UserRole {
 }
 
 model Order {
-    id        String      @id @default(uuid())
-    user      User        @relation(fields: [userId], references: [id])
-    userId    String
-    items     OrderItem[]
-    total     Float
-    status    OrderStatus @default(PENDING)
-    address   String
-    phone     String
-    notes     String?
-    createdAt DateTime    @default(now())
-    updatedAt DateTime    @updatedAt
+    id            String      @id @default(uuid())
+    user          User        @relation(fields: [userId], references: [id])
+    userId        String
+    items         OrderItem[]
+    total         Float
+    status        OrderStatus @default(PENDING)
+    address       String
+    phone         String
+    notes         String?
+    customerName  String? // Para pedidos de usuários não logados
+    customerPhone String? // Para pedidos de usuários não logados
+    customerEmail String? // Para pedidos de usuários não logados
+    deliveryFee   Float?      @default(0)
+    estimatedTime Int? // Tempo estimado em minutos
+    createdAt     DateTime    @default(now())
+    updatedAt     DateTime    @updatedAt
 }
 
 model OrderItem {
@@ -96,8 +102,46 @@ model OrderItem {
 
 enum OrderStatus {
     PENDING
+    CONFIRMED
     PREPARING
     READY
+    OUT_FOR_DELIVERY
     DELIVERED
     CANCELLED
+}
+
+// Modelo para configurações do restaurante
+model RestaurantConfig {
+    id                String   @id @default(uuid())
+    name              String
+    address           String
+    phone             String
+    email             String
+    deliveryFee       Float    @default(0)
+    minOrderValue     Float    @default(0)
+    maxDeliveryRadius Float    @default(10) // em km
+    isOpen            Boolean  @default(true)
+    openingHours      String // Store as JSON string
+    createdAt         DateTime @default(now())
+    updatedAt         DateTime @updatedAt
+}
+
+model Notification {
+    id        String           @id @default(uuid())
+    type      NotificationType
+    title     String
+    message   String
+    userId    String?
+    orderId   String?
+    isRead    Boolean          @default(false)
+    createdAt DateTime         @default(now())
+}
+
+enum NotificationType {
+    ORDER_CREATED
+    ORDER_CONFIRMED
+    ORDER_READY
+    ORDER_DELIVERED
+    ORDER_CANCELLED
+    SYSTEM
 }

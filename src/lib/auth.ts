@@ -4,24 +4,36 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "./db";
 
-
 declare module "next-auth" {
     interface Session {
         user: {
             id: string;
-            role?: string;
+            role: string;
             address?: string | null;
             phone?: string | null;
         } & DefaultSession["user"];
     }
 
     interface User {
-        role?: string;
+        id: string;
+        role: string;
+        address?: string | null;
+        phone?: string | null;
     }
 }
+
+declare module "next-auth/jwt" {
+    interface JWT {
+        id: string;
+        role: string;
+        address?: string | null;
+        phone?: string | null;
+    }
+}
+
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
-    providers: [
+    providers: [    
         CredentialsProvider({
             name: "Credentials",
             credentials: {
@@ -38,7 +50,7 @@ export const authOptions: NextAuthOptions = {
                 });
 
                 if (!user) {
-                    return null;
+                    throw new Error("Usuário não encontrado");
                 }
 
                 const isValid = await bcrypt.compare(
@@ -46,37 +58,51 @@ export const authOptions: NextAuthOptions = {
                     user.password
                 );
 
-                if (!isValid) {
-                    return null;
+                 if (!isValid) {
+                    throw new Error("Senha incorreta");
                 }
 
                 return {
                     id: user.id,
                     email: user.email,
                     name: user.name,
+                    role: user.role,
+                    address: user.address,
+                    phone: user.phone,
                 };
             },
         }),
     ],
-    session: {
-        strategy: "jwt",
-    },
+
     callbacks: {
         async jwt({ token, user }) {
             if (user) {
                 token.id = user.id;
+                token.role = user.role;
+                token.address = user.address;
+                token.phone = user.phone;
             }
             return token;
         },
         async session({ session, token }) {
             if (session.user) {
-                session.user.email = token.email as string;
+                session.user.id = token.id;
+                session.user.role = token.role;
+                session.user.address = token.address;
+                session.user.phone = token.phone;
             }
             return session;
         },
     },
-    pages: {
-        signIn: "/login",
+    
+    session: {
+        strategy: "jwt",
+        maxAge: 30 * 24 * 60 * 60, 
     },
+    
+    pages: {
+        signIn: "/", 
+    },
+    
     secret: process.env.NEXTAUTH_SECRET,
 };
