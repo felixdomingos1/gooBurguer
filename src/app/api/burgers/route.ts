@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server';
  
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const page = parseInt(searchParams.get('page') || '1');
+  const page = Number(searchParams.get('page')) || 1;
   const limit = 10;
   const skip = (page - 1) * limit;
   const category = searchParams.get('category');
