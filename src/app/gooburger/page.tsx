@@ -181,7 +181,7 @@ export default function GooburgerDashboard() {
                             <p className="text-sm text-gray-500">Quantidade: {item.quantity}</p>
                           </div>
                         </div>
-                        <p className="font-medium">R$ {item.price.toFixed(2)}</p>
+                        <p className="font-medium">AOA {item.price.toFixed(2)}</p>
                       </div>
                     ))}
                   </div>
@@ -195,7 +195,7 @@ export default function GooburgerDashboard() {
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-gray-600">Total:</p>
-                      <p className="text-xl font-bold text-amber-600">R$ {order.total.toFixed(2)}</p>
+                      <p className="text-xl font-bold text-amber-600">AOA {order.total.toFixed(2)}</p>
                     </div>
                   </div>
                 </div>

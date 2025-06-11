@@ -45,7 +45,7 @@ export default function OrderForm({ burger, onClose }: OrderFormProps) {
         
         <div className="mb-6">
           <p className="text-gray-700 mb-4">{burger.description}</p>
-          <p className="text-xl font-bold text-amber-600">R$ {burger.price.toFixed(2)}</p>
+          <p className="text-xl font-bold text-amber-600">AOA {burger.price.toFixed(2)}</p>
         </div>
         
         <form className="space-y-4">

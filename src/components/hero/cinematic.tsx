@@ -81,11 +81,11 @@ export default function BurgerHero({ burgers, onAddToCart }: BurgerHeroProps) {
             <div className="flex items-baseline gap-2">
               {hasDiscount && (
                 <span className="text-xl line-through opacity-70">
-                  R$ {currentBurger.originalPrice?.toFixed(2)}
+                  AOA {currentBurger.originalPrice?.toFixed(2)}
                 </span>
               )}
               <span className="text-3xl font-bold">
-                R$ {currentBurger.price.toFixed(2)}
+                AOA {currentBurger.price.toFixed(2)}
               </span>
             </div>
 

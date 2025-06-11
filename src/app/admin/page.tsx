@@ -352,7 +352,7 @@ export default function AdminPanel() {
                                                 {burger.category}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(burger.price)}
+                                                {new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(burger.price)}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${burger.isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
@@ -432,7 +432,7 @@ export default function AdminPanel() {
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(order.total)}
+                                                    {new Intl.NumberFormat('pt-AO', { style: 'currency', currency: 'AOA' }).format(order.total)}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${ORDER_STATUS_COLORS[order.status]}`}>
@@ -441,7 +441,7 @@ export default function AdminPanel() {
                                                     </span>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {new Date(order.createdAt).toLocaleDateString('pt-BR')}
+                                                    {new Date(order.createdAt).toLocaleDateString('pt-AO')}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                                     <select
