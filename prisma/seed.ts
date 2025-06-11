@@ -13,7 +13,7 @@ export type BurgerCategory = keyof typeof BurgerCategory;
 
 const burgers = [
   {
-    name: 'Classic Cheeseburger',
+    name: 'Cheeseburger Clássico',
     description: 'Pão de hambúrguer, carne 150g, queijo cheddar, alface, tomate e molho especial',
     price: 18.90,
     originalPrice: 22.90,
@@ -34,7 +34,7 @@ const burgers = [
     isFeatured: true,
   },
   {
-    name: 'Bacon Deluxe',
+    name: 'Deluxe de Bacon',
     description: 'Pão brioche, carne 180g, queijo emental, bacon crocante, cebola caramelizada e molho barbecue',
     price: 24.90,
     image: '/burgers/bacon-deluxe.jpg',
@@ -54,7 +54,7 @@ const burgers = [
     tags: JSON.stringify(['new']),
   },
   {
-    name: 'Veggie Supreme',
+    name: 'Supremo Vegetariano',
     description: 'Pão integral, hambúrguer de grão-de-bico, queijo vegano, rúcula, tomate seco e maionese de abacate',
     price: 22.50,
     image: '/burgers/veggie-supreme.jpg',
@@ -73,7 +73,7 @@ const burgers = [
     tags: JSON.stringify(['healthy']),
   },
   {
-    name: 'Black Bean Vegan',
+    name: 'Vegano de Feijão Preto',
     description: 'Pão de beterraba, hambúrguer de feijão preto, cogumelos grelhados, cebola roxa e maionese de castanha',
     price: 23.90,
     image: '/burgers/black-bean-vegan.jpg',
@@ -92,15 +92,15 @@ const burgers = [
     tags: JSON.stringify(['new', 'vegan']),
   },
   {
-    name: 'Signature Smash',
-    description: 'Pão australiano, 2 carnes 120g (smash style), queijo cheddar, cebola caramelizada, picles e molho da casa',
+    name: 'Especial Smash',
+    description: 'Pão australiano, 2 carnes 120g (estilo smash), queijo cheddar, cebola caramelizada, picles e molho da casa',
     price: 27.90,
     image: '/burgers/signature-smash.jpg',
     images: JSON.stringify(['/burgers/signature-smash-1.jpg', '/burgers/signature-smash-2.jpg']),
     category: BurgerCategory.SIGNATURE,
     ingredients: JSON.stringify([
       { name: 'Pão australiano', isRemovable: false },
-      { name: '2 carnes 120g (smash style)', isRemovable: false },
+      { name: '2 carnes 120g (estilo smash)', isRemovable: false },
       { name: 'Queijo cheddar', isRemovable: true },
       { name: 'Cebola caramelizada', isRemovable: true },
       { name: 'Picles', isRemovable: true },
@@ -117,6 +117,7 @@ const burgers = [
 async function main() {
   console.log('Seeding database...');
 
+  // Primeiro criar o admin
   const adminPassword = await hash('@gooburger2025', 12);
   await prisma.user.upsert({
     where: { email: 'admin@gooburger.com' },
@@ -130,8 +131,15 @@ async function main() {
       phone: '11999999999'
     }
   });
+
+  await prisma.orderItem.deleteMany();
+  await prisma.order.deleteMany();
+  await prisma.notification.deleteMany();
+  
+  // Agora pode deletar os burgers
   await prisma.burger.deleteMany();
 
+  // Criar os novos burgers
   for (const burger of burgers) {
     await prisma.burger.create({
       data: burger,
