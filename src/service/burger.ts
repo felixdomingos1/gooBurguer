@@ -4,8 +4,9 @@ export async function fetchBurgers(page = 1, category?: string): Promise<BurgerL
   const isServer = typeof window === "undefined";
 
   const baseUrl = isServer
-    ? process.env.API_URL ?? "http://localhost:3000" // Use API_URL no SSR
-    : window?.location?.origin ?? "";
+    ? process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"
+    : window.location.origin;
+
 
   if (!baseUrl || baseUrl.startsWith("/")) {
     throw new Error("API base URL is invalid or missing.");
@@ -22,5 +23,11 @@ export async function fetchBurgers(page = 1, category?: string): Promise<BurgerL
     throw new Error("Failed to fetch burgers");
   }
 
-  return response.json();
+  const data = await response.json();
+
+  if (!data.results) {
+    throw new Error("Invalid API response format");
+  }
+
+  return data;
 }

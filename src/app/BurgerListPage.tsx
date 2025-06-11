@@ -18,10 +18,19 @@ export default function BurgerListPage({ initialBurgers }: { initialBurgers: Bur
     useEffect(() => {
         if (!initialBurgers.length) {
             fetch('/api/burgers?page=1')
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error('Failed to fetch');
+                    return res.json();
+                })
                 .then(data => {
+                    if (!data.results) throw new Error('Invalid data format');
                     setBurgers(data.results);
                     setIsLoading(false);
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    setIsLoading(false);
+                    setBurgers([]); // Clear burgers on error
                 });
         } else {
             setIsLoading(false);
@@ -52,7 +61,7 @@ export default function BurgerListPage({ initialBurgers }: { initialBurgers: Bur
     if (isLoading) {
         return (
             <div className="min-h-screen">
-                <Header isTransparent={isHeaderTransparent}  heroHeight={heroHeight} />
+                <Header isTransparent={isHeaderTransparent} heroHeight={heroHeight} />
                 <div className="container mx-auto px-4 py-8 pt-24">
                     <div className="h-screen min-h-[600px] max-h-[1200px] bg-gray-200 animate-pulse rounded-lg mb-8" />
                     <div className="h-12 w-1/3 bg-gray-200 animate-pulse rounded mb-8" />
@@ -69,7 +78,7 @@ export default function BurgerListPage({ initialBurgers }: { initialBurgers: Bur
     if (burgers.length === 0) {
         return (
             <div className="min-h-screen">
-                <Header isTransparent={isHeaderTransparent}  heroHeight={heroHeight} />
+                <Header isTransparent={isHeaderTransparent} heroHeight={heroHeight} />
                 <div className="container mx-auto px-4 py-8 pt-24 text-center">
                     <h1 className="text-3xl font-bold mb-4">Nenhum Hamburger encontrado</h1>
                     <p className="text-gray-600">Não encontramos hambúrgueres para exibir.</p>
@@ -80,7 +89,7 @@ export default function BurgerListPage({ initialBurgers }: { initialBurgers: Bur
 
     return (
         <div className="min-h-screen">
-            <Header isTransparent={isHeaderTransparent}  heroHeight={heroHeight} />
+            <Header isTransparent={isHeaderTransparent} heroHeight={heroHeight} />
 
             <div ref={heroRef}>
                 <BurgerHero burgers={burgers} onAddToCart={addToCart} />
