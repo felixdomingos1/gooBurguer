@@ -468,7 +468,7 @@ export default function AdminPanel() {
 
             {/* Modal para adicionar/editar hambúrguer */}
             {isModalOpen && currentBurger && (
-                <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+                <div className="fixed inset-0 bg-black/80 bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto">
                         <div className="p-6">
                             <h2 className="text-xl font-semibold mb-4">
