@@ -6,7 +6,7 @@ const nextConfig: NextConfig = {
         remotePatterns: [
             {
                 protocol: 'http',
-                hostname: 'localhost',
+                hostname: 'goo-burguer.vercel.app',
                 port: '',
                 pathname: '/t/p/**',
             },

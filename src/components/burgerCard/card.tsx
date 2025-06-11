@@ -30,6 +30,12 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
         notes: '',
         quantity: 1
     });
+    const [feedback, setFeedback] = useState<{
+        show: boolean;
+        success: boolean;
+        message: string;
+    }>({ show: false, success: false, message: '' });
+
 
     const pathimage = burger.image
         ? `${process.env.NEXT_PUBLIC_BASE_URL || ''}${burger.image}`
@@ -100,14 +106,32 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
             });
 
             if (response.ok) {
-                alert('Pedido realizado com sucesso! Entraremos em contato em breve.');
+                setFeedback({
+                    show: true,
+                    success: true,
+                    message: 'Pedido realizado com sucesso! Entraremos em contato em breve.'
+                });
+                // Limpa o formulário mas mantém o modal aberto
+                setOrderData({
+                    customerName: '',
+                    customerPhone: '',
+                    customerAddress: '',
+                    notes: '',
+                    quantity: 1
+                });
+
                 closeModal(e as any);
             } else {
                 throw new Error('Erro ao realizar pedido');
             }
         } catch (error) {
             console.error('Erro ao realizar pedido:', error);
-            alert('Erro ao realizar pedido. Tente novamente.');
+            setFeedback({
+                show: true,
+                success: false,
+                message: 'Erro ao realizar pedido. Tente novamente.'
+            });
+
         } finally {
             setIsSubmitting(false);
         }
@@ -418,6 +442,43 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                                         </div>
                                     </div>
                                 )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {feedback.show && (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl p-6 max-w-sm w-full">
+                        <div className="text-center">
+                            <div className={`mx-auto flex items-center justify-center h-12 w-12 rounded-full ${feedback.success ? 'bg-green-100' : 'bg-red-100'}`}>
+                                {feedback.success ? (
+                                    <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                    </svg>
+                                ) : (
+                                    <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                )}
+                            </div>
+                            <h3 className="text-lg font-medium text-gray-900 mt-3">{feedback.success ? 'Sucesso!' : 'Erro'}</h3>
+                            <div className="mt-2">
+                                <p className="text-sm text-gray-500">{feedback.message}</p>
+                            </div>
+                            <div className="mt-4">
+                                <button
+                                    type="button"
+                                    className="inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-amber-500 text-base font-medium text-white hover:bg-amber-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:text-sm"
+                                    onClick={() => {
+                                        setFeedback({ show: false, success: false, message: '' });
+                                        if (feedback.success) {
+                                            setIsModalOpen(false);
+                                        }
+                                    }}
+                                >
+                                    OK
+                                </button>
                             </div>
                         </div>
                     </div>
