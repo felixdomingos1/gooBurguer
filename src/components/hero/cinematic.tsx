@@ -39,9 +39,8 @@ export default function BurgerHero({ burgers, onAddToCart }: BurgerHeroProps) {
   const hasDiscount = currentBurger.originalPrice !== null;
 
   const imagePath = currentBurger.image
-    ? `http://localhost:3000${currentBurger.image}`
+    ? `${process.env.NEXT_PUBLIC_BASE_URL || ''}${currentBurger.image}`
     : "/img/default-burger.jpg";
-  "use client";
 
   return (
     <section className="relative h-screen max-h-[800px] min-h-[600px] w-full overflow-hidden">

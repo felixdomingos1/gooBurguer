@@ -37,7 +37,7 @@ export default function OrderForm({ burger, onClose }: OrderFormProps) {
         
         <div className="mb-4">
           <img 
-            src={burger.image ? `http://localhost:3000${burger.image}` : "/img/default-burger.jpg"} 
+            src={burger.image ? `${process.env.NEXT_PUBLIC_BASE_URL || ''}${burger.image}` : "/img/default-burger.jpg"} 
             alt={burger.name}
             className="w-full h-48 object-cover rounded-lg"
           />

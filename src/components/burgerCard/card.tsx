@@ -30,9 +30,11 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
         notes: '',
         quantity: 1
     });
-
-    const pathimage = burger.image ? `http://localhost:3000${burger.image}` : '/img/default-burger.jpg';
     
+    const pathimage = burger.image
+        ? `${process.env.NEXT_PUBLIC_BASE_URL || ''}${burger.image}`
+        : "/img/default-burger.jpg";
+
     const handleOrderClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         setIsModalOpen(true);
@@ -81,7 +83,7 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    userId: null,  
+                    userId: null,
                     customerName: orderData.customerName,
                     customerPhone: orderData.customerPhone,
                     customerAddress: orderData.customerAddress,
@@ -118,7 +120,7 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
 
     return (
         <>
-            <div 
+            <div
                 className="max-w-sm rounded-xl overflow-hidden shadow-lg bg-white hover:shadow-xl transition-all duration-300 cursor-pointer hover:scale-[1.02] relative"
                 onClick={handleOrderClick}
                 aria-label={`Pedir ${burger.name}`}
@@ -183,7 +185,7 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                                 <span className="text-sm text-gray-600">{burger.preparationTime} min</span>
                             </div>
                         </div>
-                        <button 
+                        <button
                             onClick={(e) => {
                                 e.stopPropagation();
                                 handleOrderClick(e);
@@ -200,16 +202,16 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
 
             {/* Modal de Pedido */}
             {isModalOpen && (
-                <div 
+                <div
                     className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4"
                     onClick={closeModal}
                 >
-                    <div 
+                    <div
                         className="bg-white rounded-xl max-w-md w-full max-h-[90vh] overflow-y-auto"
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="relative">
-                            <button 
+                            <button
                                 onClick={closeModal}
                                 className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 z-10 bg-white rounded-full p-1 shadow"
                                 aria-label="Fechar modal"
@@ -227,10 +229,10 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                                 />
                             </div>
                         </div>
-                        
+
                         <div className="p-6">
                             <h2 className="text-2xl font-bold text-gray-900 mb-2">{burger.name}</h2>
-                            
+
                             <div className="flex items-center mb-4">
                                 <span className="text-xl font-semibold text-gray-900 mr-3">
                                     {burger.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
@@ -241,9 +243,9 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                                     </span>
                                 )}
                             </div>
-                            
+
                             <p className="text-gray-700 mb-6">{burger.description}</p>
-                            
+
                             <div className="mb-6">
                                 <h3 className="font-semibold text-gray-900 mb-2">Informações</h3>
                                 <div className="grid grid-cols-2 gap-4">
@@ -259,12 +261,12 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {!showOrderForm ? (
                                 <>
                                     <div className="text-center mb-6">
                                         <h3 className="font-semibold text-gray-900 mb-3">Como você deseja pedir?</h3>
-                                        
+
                                         <div className="space-y-3">
                                             <button
                                                 onClick={handleAppOrder}
@@ -273,11 +275,11 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                                                 <FiShoppingBag className="mr-2" />
                                                 Pedir pelo App
                                             </button>
-                                            
+
                                             <div className="flex items-center justify-center">
                                                 <span className="text-gray-400 text-sm">ou</span>
                                             </div>
-                                            
+
                                             <a
                                                 href={generateWhatsAppLink()}
                                                 target="_blank"
@@ -289,14 +291,14 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                                             </a>
                                         </div>
                                     </div>
-                                    
+
                                     <div className="text-center">
                                         <h3 className="font-semibold text-gray-900 mb-3">QR Code WhatsApp</h3>
                                         <div className="flex justify-center">
                                             <div className="p-4 bg-white rounded-lg border border-gray-200 inline-block">
-                                                <QRCodeSVG 
-                                                    value={generateWhatsAppLink()} 
-                                                    size={120} 
+                                                <QRCodeSVG
+                                                    value={generateWhatsAppLink()}
+                                                    size={120}
                                                     level="H"
                                                     includeMargin={true}
                                                 />
@@ -323,7 +325,7 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                                                 placeholder="Seu nome completo"
                                             />
                                         </div>
-                                        
+
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 <FiPhone className="inline mr-1" />
@@ -339,7 +341,7 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                                                 placeholder="Ex: +244 999 999 999"
                                             />
                                         </div>
-                                        
+
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 <FiMapPin className="inline mr-1" />
@@ -355,7 +357,7 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                                                 placeholder="Rua, número, bairro, cidade..."
                                             />
                                         </div>
-                                        
+
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 Quantidade
@@ -378,7 +380,7 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                                                 </button>
                                             </div>
                                         </div>
-                                        
+
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700 mb-1">
                                                 <FiMessageSquare className="inline mr-1" />
@@ -393,19 +395,19 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
                                                 placeholder="Alguma observação especial..."
                                             />
                                         </div>
-                                        
+
                                         <div className="bg-gray-50 p-3 rounded-lg">
                                             <div className="flex justify-between items-center">
                                                 <span className="font-medium">Total:</span>
                                                 <span className="text-xl font-bold text-amber-600">
-                                                    {(burger.price * orderData.quantity).toLocaleString('pt-BR', { 
-                                                        style: 'currency', 
-                                                        currency: 'BRL' 
+                                                    {(burger.price * orderData.quantity).toLocaleString('pt-BR', {
+                                                        style: 'currency',
+                                                        currency: 'BRL'
                                                     })}
                                                 </span>
                                             </div>
                                         </div>
-                                        
+
                                         <div className="flex space-x-3">
                                             <button
                                                 type="button"
