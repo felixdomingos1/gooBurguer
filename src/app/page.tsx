@@ -3,26 +3,32 @@ import { useEffect, useState } from "react";
 import BurgerListPage from "./BurgerListPage";
 import { Metadata } from "next";
 
-const metadata: Metadata = {
-  title: "Gooburger - Burgers",
-  description: "Explore our delicious burger menu at Gooburger. Find your favorite burger and order online for delivery or pickup.",
+export const metadata: Metadata = {
+  title: "Gooburger - Hamburgers Deliciosos",
+  keywords: ["hamburgers", "entregas", "gooburger", "hamburgers deliciosos", "Peça um online"],
+  authors: [{ name: "Gooburger Team", url: "https://goo-burguer.vercel.app/" }],
+  creator: "Equipa Gooburger",
+  publisher: "Gooburger",
+  themeColor: "#ff5722",
+  colorScheme: "light dark",
+  description: "Explore nosso menu de hambúrgueres deliciosos no Gooburger. Encontre seu hambúrguer favorito e peça online para entrega ou retirada.",
   openGraph: {
-    title: "Gooburger - Burgers",
-    description: "Explore our delicious burger menu at Gooburger. Find your favorite burger and order online for delivery or pickup.",
+    title: "Gooburger - Hamburgers Deliciosos",
+    description: "Explore nosso menu de hambúrgueres deliciosos no Gooburger. Encontre seu hambúrguer favorito e peça online para entrega ou retirada.",
     images: [
       {
-        url: "/img/og-image.jpg",
+        url: "/images/7.jpg",
         width: 1200,
         height: 630,
-        alt: "Gooburger - Delicious Burgers",
+        alt: "Gooburger - Delicious Hamburgers Deliciosos",
       },
     ],
   },
   twitter: {
-    title: "Gooburger - Burgers",
-    description: "Explore our delicious burger menu at Gooburger. Find your favorite burger and order online for delivery or pickup.",
+    title: "Gooburger - Hamburgers Deliciosos",
+    description: "Explore nosso menu de hambúrgueres deliciosos no Gooburger. Encontre seu hambúrguer favorito e peça online para entrega ou retirada.",
     card: "summary_large_image",
-    images: ["/img/og-image.jpg"],
+    images: ["/images/7.jpg"],
   }, 
   robots: {
     index: true,
