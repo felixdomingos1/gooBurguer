@@ -1,4 +1,3 @@
-// components/Footer.tsx
 import Link from "next/link";
 import Image from "next/image";
 import { FiFacebook, FiInstagram } from "react-icons/fi";
@@ -33,9 +32,9 @@ export default function Footer() {
                 <div>
                     <h4 className="font-semibold text-lg mb-3">Horário</h4>
                     <ul className="text-sm text-zinc-400 space-y-1">
-                        <li>Seg - Sex: 11h - 22h</li>
-                        <li>Sábado: 12h - 23h</li>
-                        <li>Domingo: 16h - 22h</li>
+                        <li>Seg - Sex: 8h - 22h</li>
+                        <li>Sábado: 8h - 20h</li>
+                        <li>Domingo: 8h - 12h</li>
                     </ul>
                 </div>
 

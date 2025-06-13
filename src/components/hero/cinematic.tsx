@@ -7,18 +7,119 @@ import { Button } from "../ui/button";
 
 interface BurgerHeroProps {
   burgers: Burger[];
-  onAddToCart: (burger: Burger) => void;
 }
 
-interface HeroProps {
-  burger: Burger;
+interface OrderData {
+  customerName: string;
+  customerPhone: string;
+  customerAddress: string;
+  notes: string;
+  quantity: number;
 }
 
-export default function BurgerHero({ burgers, onAddToCart }: BurgerHeroProps) {
+export default function BurgerHero({ burgers }: BurgerHeroProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [orderData, setOrderData] = useState<OrderData>({
+    customerName: '',
+    customerPhone: '',
+    customerAddress: '',
+    notes: '',
+    quantity: 1
+  });
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showOrderModal, setShowOrderModal] = useState(false);
+  const [feedback, setFeedback] = useState<{
+    show: boolean;
+    success: boolean;
+    message: string;
+  }>({ show: false, success: false, message: '' });
 
-  // Efeito para rotacionar os hambúrgueres automaticamente
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setOrderData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleQuantityChange = (value: number) => {
+    if (value < 1) return;
+    setOrderData(prev => ({
+      ...prev,
+      quantity: value
+    }));
+  };
+
+  const handleSubmitOrder = async (burger: Burger) => {
+    // Validação dos campos obrigatórios
+    if (!orderData.customerName.trim() || !orderData.customerPhone.trim() || !orderData.customerAddress.trim()) {
+      setFeedback({
+        show: true,
+        success: false,
+        message: 'Por favor, preencha todos os campos obrigatórios'
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: null,
+          customerName: orderData.customerName,
+          customerPhone: orderData.customerPhone,
+          customerAddress: orderData.customerAddress,
+          address: orderData.customerAddress,
+          phone: orderData.customerPhone,
+          total: currentBurger.price * orderData.quantity,
+          notes: orderData.notes,
+          items: [{
+            burgerId: currentBurger.id,
+            quantity: orderData.quantity,
+            price: currentBurger.price,
+          }],
+        }),
+      });
+
+      if (response.ok) {
+        setFeedback({
+          show: true,
+          success: true,
+          message: 'Pedido realizado com sucesso! Entraremos em contato em breve.'
+        });
+        setOrderData({
+          customerName: '',
+          customerPhone: '',
+          customerAddress: '',
+          notes: '',
+          quantity: 1
+        });
+        setShowOrderModal(false);
+      } else {
+        throw new Error('Erro ao realizar pedido');
+      }
+    } catch (error) {
+      console.error('Erro ao realizar pedido:', error);
+      setFeedback({
+        show: true,
+        success: false,
+        message: 'Erro ao realizar pedido. Tente novamente.'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const openOrderModal = () => {
+    setShowOrderModal(true);
+  };
+
   useEffect(() => {
     if (burgers.length <= 1) return;
 
@@ -27,11 +128,20 @@ export default function BurgerHero({ burgers, onAddToCart }: BurgerHeroProps) {
       setTimeout(() => {
         setCurrentIndex((prev) => (prev + 1) % burgers.length);
         setIsTransitioning(false);
-      }, 500); // Tempo da animação de transição
-    }, 8000); // Troca a cada 8 segundos
+      }, 500);
+    }, 8000);
 
     return () => clearInterval(interval);
   }, [burgers.length]);
+
+  useEffect(() => {
+    if (feedback.show) {
+      const timer = setTimeout(() => {
+        setFeedback(prev => ({ ...prev, show: false }));
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [feedback.show]);
 
   if (burgers.length === 0) return null;
 
@@ -44,7 +154,6 @@ export default function BurgerHero({ burgers, onAddToCart }: BurgerHeroProps) {
 
   return (
     <section className="relative h-screen max-h-[800px] min-h-[600px] w-full overflow-hidden">
-      {/* Imagem de fundo */}
       <div className="absolute inset-0 z-0">
         <Image
           src={imagePath}
@@ -57,7 +166,6 @@ export default function BurgerHero({ burgers, onAddToCart }: BurgerHeroProps) {
         <div className="absolute inset-0 bg-black/40" />
       </div>
 
-      {/* Conteúdo */}
       <div className="container relative z-10 flex h-full items-center px-4">
         <div
           className={`max-w-2xl text-white transition-all duration-500 ${isTransitioning ? "translate-x-[-50px] opacity-0" : "translate-x-0 opacity-100"
@@ -99,7 +207,7 @@ export default function BurgerHero({ burgers, onAddToCart }: BurgerHeroProps) {
           <div className="flex flex-wrap gap-3">
             <Button
               size="lg"
-              onClick={() => onAddToCart(currentBurger)}
+              onClick={openOrderModal}
               className="bg-green-900 hover:bg-primary/90"
             >
               Pedir Agora
@@ -115,6 +223,129 @@ export default function BurgerHero({ burgers, onAddToCart }: BurgerHeroProps) {
           </div>
         </div>
       </div>
+
+      {/* Modal de Pedido - Implementação customizada */}
+      {showOrderModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+            <div className="mb-4">
+              <h2 className="text-2xl font-bold text-gray-900">Finalizar Pedido</h2>
+              <p className="text-gray-600">Preencha seus dados para concluir o pedido de {currentBurger.name}</p>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="customerName" className="mb-1 block text-sm font-medium text-gray-700">
+                  Nome*
+                </label>
+                <input
+                  id="customerName"
+                  name="customerName"
+                  type="text"
+                  value={orderData.customerName}
+                  onChange={handleInputChange}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="customerPhone" className="mb-1 block text-sm font-medium text-gray-700">
+                  Telefone*
+                </label>
+                <input
+                  id="customerPhone"
+                  name="customerPhone"
+                  type="tel"
+                  value={orderData.customerPhone}
+                  onChange={handleInputChange}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="customerAddress" className="mb-1 block text-sm font-medium text-gray-700">
+                  Endereço*
+                </label>
+                <input
+                  id="customerAddress"
+                  name="customerAddress"
+                  type="text"
+                  value={orderData.customerAddress}
+                  onChange={handleInputChange}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="quantity" className="mb-1 block text-sm font-medium text-gray-700">
+                  Quantidade
+                </label>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleQuantityChange(orderData.quantity - 1)}
+                    disabled={orderData.quantity <= 1}
+                    className="h-8 w-8 rounded-md border border-gray-300 disabled:opacity-50"
+                  >
+                    -
+                  </button>
+                  <span className="w-8 text-center">{orderData.quantity}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleQuantityChange(orderData.quantity + 1)}
+                    className="h-8 w-8 rounded-md border border-gray-300"
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="notes" className="mb-1 block text-sm font-medium text-gray-700">
+                  Observações
+                </label>
+                <textarea
+                  id="notes"
+                  name="notes"
+                  value={orderData.notes}
+                  onChange={handleInputChange}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
+                  rows={3}
+                  placeholder="Sem cebola, ponto da carne, etc."
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setShowOrderModal(false)}
+                className="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSubmitOrder(currentBurger)}
+                disabled={isSubmitting}
+                className="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700 disabled:opacity-70"
+              >
+                {isSubmitting ? "Enviando..." : "Confirmar Pedido"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Feedback */}
+      {feedback.show && (
+        <div className={`fixed bottom-4 right-4 z-50 rounded-md p-4 shadow-lg ${feedback.success ? 'bg-green-500' : 'bg-red-500'} text-white`}>
+          {feedback.message}
+        </div>
+      )}
 
       {/* Indicadores */}
       {burgers.length > 1 && (

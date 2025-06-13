@@ -136,6 +136,7 @@ const BurgerCard: React.FC<BurgerCardProps> = ({ burger }) => {
             setIsSubmitting(false);
         }
     };
+    
     const generateWhatsAppLink = () => {
         const message = `Olá! Tudo bem por aí? Espero que o trabalho esteja indo super bem! 😊\n\nEstou interessado em fazer um pedido:\n🍔 *${burger.name}*\n💰 Preço: ${burger.price.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}\n📝 Descrição: ${burger.description}\n\nPoderia preparar um pra mim, por favor? 😋`;
         return `https://wa.me/+244929781171?text=${encodeURIComponent(message)}`;
