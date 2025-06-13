@@ -1,123 +1,70 @@
 import { prisma } from '@/lib/db';
 import { hash } from 'bcryptjs';
 
-export const BurgerCategory = {
-  CLASSIC: 'CLASSIC',
-  PREMIUM: 'PREMIUM',
-  VEGETARIAN: 'VEGETARIAN',
-  VEGAN: 'VEGAN',
-  SIGNATURE: 'SIGNATURE',
-} as const;
-
-export type BurgerCategory = keyof typeof BurgerCategory;
+// Use the Prisma-generated enum for BurgerCategory
+import { BurgerCategory } from '@prisma/client';
 
 const burgers = [
   {
-    name: 'Cheeseburger Clássico',
-    description: 'Pão de hambúrguer, carne 150g, queijo cheddar, alface, tomate e molho especial',
-    price: 18.90,
-    originalPrice: 22.90,
-    image: '/burgers/classic-cheeseburger.jpg',
-    images: JSON.stringify(['/burgers/classic-cheeseburger-1.jpg', '/burgers/classic-cheeseburger-2.jpg']),
-    tags: JSON.stringify(['best-seller']),
+    name: 'Kiamy burger',
+    description: 'Hambúrguer individual com carne 100% angolana, queijo cheddar, alface, tomate e molho especial, servido no pão brioche.',
+    price: 4000,
+    image: '/burgers/chameburger.jpeg',
+    images: JSON.stringify(['/burgers/chameburger.jpeg', '/burgers/chameburger.jpeg']),
     category: BurgerCategory.CLASSIC,
     ingredients: JSON.stringify([
-      { name: 'Pão de hambúrguer', isRemovable: false },
-      { name: 'Carne 150g', isRemovable: false },
+      { name: 'Pão brioche', isRemovable: false },
+      { name: 'Carne angolana 150g', isRemovable: false },
       { name: 'Queijo cheddar', isRemovable: true },
       { name: 'Alface', isRemovable: true },
       { name: 'Tomate', isRemovable: true },
       { name: 'Molho especial', isRemovable: true },
     ]),
-    preparationTime: 15,
-    calories: 550,
+    preparationTime: 12,
+    calories: 540,
+    tags: JSON.stringify(['individual']),
     isFeatured: true,
   },
   {
-    name: 'Deluxe de Bacon',
-    description: 'Pão brioche, carne 180g, queijo emental, bacon crocante, cebola caramelizada e molho barbecue',
-    price: 24.90,
-    image: '/burgers/bacon-deluxe.jpg',
-    images: JSON.stringify(['/burgers/bacon-deluxe-1.jpg', '/burgers/bacon-deluxe-2.jpg']),
-    category: BurgerCategory.PREMIUM,
-    ingredients: JSON.stringify([
-      { name: 'Pão brioche', isRemovable: false },
-      { name: 'Carne 180g', isRemovable: false },
-      { name: 'Queijo emental', isRemovable: true },
-      { name: 'Bacon crocante', isRemovable: true },
-      { name: 'Cebola caramelizada', isRemovable: true },
-      { name: 'Molho barbecue', isRemovable: true },
-    ]),
-    preparationTime: 20,
-    calories: 720,
-    isNew: true,
-    tags: JSON.stringify(['new']),
-  },
-  {
-    name: 'Supremo Vegetariano',
-    description: 'Pão integral, hambúrguer de grão-de-bico, queijo vegano, rúcula, tomate seco e maionese de abacate',
-    price: 22.50,
-    image: '/burgers/veggie-supreme.jpg',
-    images: JSON.stringify(['/burgers/veggie-supreme-1.jpg', '/burgers/veggie-supreme-2.jpg']),
-    category: BurgerCategory.VEGETARIAN,
-    ingredients: JSON.stringify([
-      { name: 'Pão integral', isRemovable: false },
-      { name: 'Hambúrguer de grão-de-bico', isRemovable: false },
-      { name: 'Queijo vegano', isRemovable: true },
-      { name: 'Rúcula', isRemovable: true },
-      { name: 'Tomate seco', isRemovable: true },
-      { name: 'Maionese de abacate', isRemovable: true },
-    ]),
-    preparationTime: 18,
-    calories: 480,
-    tags: JSON.stringify(['healthy']),
-  },
-  {
-    name: 'Vegano de Feijão Preto',
-    description: 'Pão de beterraba, hambúrguer de feijão preto, cogumelos grelhados, cebola roxa e maionese de castanha',
-    price: 23.90,
-    image: '/burgers/black-bean-vegan.jpg',
-    images: JSON.stringify(['/burgers/black-bean-vegan-1.jpg', '/burgers/black-bean-vegan-2.jpg']),
+    name: 'Duo LoveBurger',
+    description: 'Combo romântico com 2 hambúrgueres Chameburger e 1 porção de batatas fritas média. Ideal para partilhar a dois.',
+    price: 7500,
+    image: '/burgers/duo-loveburger.jpeg',
+    images: JSON.stringify(['/burgers/duo-loveburger.jpeg', '/burgers/duo-loveburger.jpeg']),
     category: BurgerCategory.VEGAN,
     ingredients: JSON.stringify([
-      { name: 'Pão de beterraba', isRemovable: false },
-      { name: 'Hambúrguer de feijão preto', isRemovable: false },
-      { name: 'Cogumelos grelhados', isRemovable: true },
-      { name: 'Cebola roxa', isRemovable: true },
-      { name: 'Maionese de castanha', isRemovable: true },
+      { name: '2x Chameburger', isRemovable: false },
+      { name: 'Batatas fritas média', isRemovable: true },
+      { name: '2x Molho à escolha', isRemovable: true },
     ]),
     preparationTime: 20,
-    calories: 420,
+    calories: 1100,
+    tags: JSON.stringify(['combo', 'casal']),
+    isFeatured: false,
     isNew: true,
-    tags: JSON.stringify(['new', 'vegan']),
   },
   {
-    name: 'Especial Smash',
-    description: 'Pão australiano, 2 carnes 120g (estilo smash), queijo cheddar, cebola caramelizada, picles e molho da casa',
-    price: 27.90,
-    image: '/burgers/signature-smash.jpg',
-    images: JSON.stringify(['/burgers/signature-smash-1.jpg', '/burgers/signature-smash-2.jpg']),
-    category: BurgerCategory.SIGNATURE,
+    name: 'Família GooBurger',
+    description: 'Combo família com 4 hambúrgueres variados, 2 porções grandes de batatas fritas e 4 refrigerantes à escolha.',
+    price: 15000,
+    image: '/burgers/familia-gooburger.jpeg',
+    images: JSON.stringify(['/burgers/familia-gooburger.jpeg', '/burgers/familia-gooburger.jpeg']),
+    category: BurgerCategory.CLASSIC,
     ingredients: JSON.stringify([
-      { name: 'Pão australiano', isRemovable: false },
-      { name: '2 carnes 120g (estilo smash)', isRemovable: false },
-      { name: 'Queijo cheddar', isRemovable: true },
-      { name: 'Cebola caramelizada', isRemovable: true },
-      { name: 'Picles', isRemovable: true },
-      { name: 'Molho da casa', isRemovable: true },
-      { name: 'Bacon extra', isRemovable: true, isExtra: true, extraPrice: 5.90 },
+      { name: '4x Hambúrgueres variados', isRemovable: false },
+      { name: '2x Batatas grandes', isRemovable: true },
+      { name: '4x Refrigerantes 33cl', isRemovable: true },
     ]),
     preparationTime: 25,
-    calories: 850,
+    calories: 2200,
+    tags: JSON.stringify(['combo', 'família']),
     isFeatured: true,
-    tags: JSON.stringify(['signature', 'best-seller']),
   },
 ];
 
 async function main() {
   console.log('Seeding database...');
 
-  // Primeiro criar o admin
   const adminPassword = await hash('@gooburger2025', 12);
   await prisma.user.upsert({
     where: { email: 'admin@gooburger.com' },
@@ -128,22 +75,17 @@ async function main() {
       password: adminPassword,
       role: 'ADMIN',
       address: 'Endereço do restaurante',
-      phone: '11999999999'
-    }
+      phone: '11999999999',
+    },
   });
 
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
   await prisma.notification.deleteMany();
-  
-  // Agora pode deletar os burgers
   await prisma.burger.deleteMany();
 
-  // Criar os novos burgers
   for (const burger of burgers) {
-    await prisma.burger.create({
-      data: burger,
-    });
+    await prisma.burger.create({ data: burger });
   }
 
   console.log('Seeding completed!');
