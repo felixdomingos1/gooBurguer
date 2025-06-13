@@ -299,13 +299,18 @@ export default function AdminPanel() {
                                 name: '',
                                 description: '',
                                 price: 0,
+                                originalPrice: null,
                                 category: 'CLASSIC',
                                 isAvailable: true,
                                 isFeatured: false,
                                 isNew: false,
                                 preparationTime: 15,
+                                calories: null,
                                 ingredients: JSON.stringify([]),
                                 tags: JSON.stringify([]),
+                                images: JSON.stringify([]),
+                                ratingAverage: 0,
+                                ratingCount: 0
                             });
                             setIsModalOpen(true);
                         }}
@@ -478,6 +483,7 @@ export default function AdminPanel() {
                             <form onSubmit={handleSubmit}>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="space-y-4">
+
                                         <div>
                                             <label className="block text-sm font-medium text-gray-700">Nome</label>
                                             <input
@@ -526,6 +532,51 @@ export default function AdminPanel() {
                                                     </option>
                                                 ))}
                                             </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Preço Original (opcional)</label>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                value={currentBurger.originalPrice || ''}
+                                                onChange={(e) => setCurrentBurger({
+                                                    ...currentBurger,
+                                                    originalPrice: e.target.value ? parseFloat(e.target.value) : null
+                                                })}
+                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                                            />
+                                        </div>
+
+                                        {/* Novo campo: Tempo de Preparação */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Tempo de Preparação (minutos)</label>
+                                            <input
+                                                type="number"
+                                                min="1"
+                                                value={currentBurger.preparationTime || 15}
+                                                onChange={(e) => setCurrentBurger({
+                                                    ...currentBurger,
+                                                    preparationTime: parseInt(e.target.value)
+                                                })}
+                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                                                required
+                                            />
+                                        </div>
+
+                                        {/* Novo campo: Calorias */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Calorias (opcional)</label>
+                                            <input
+                                                type="number"
+                                                min="0"
+                                                value={currentBurger.calories || ''}
+                                                onChange={(e) => setCurrentBurger({
+                                                    ...currentBurger,
+                                                    calories: e.target.value ? parseInt(e.target.value) : null
+                                                })}
+                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500"
+                                            />
                                         </div>
                                     </div>
 
@@ -616,7 +667,52 @@ export default function AdminPanel() {
                                         </div>
                                     </div>
                                 </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Ingredientes (JSON)</label>
+                                    <textarea
+                                        value={typeof currentBurger.ingredients === 'string'
+                                            ? currentBurger.ingredients
+                                            : JSON.stringify(currentBurger.ingredients || [], null, 2)}
+                                        onChange={(e) => {
+                                            try {
+                                                const parsed = JSON.parse(e.target.value);
+                                                setCurrentBurger({ ...currentBurger, ingredients: parsed });
+                                            } catch {
+                                                setCurrentBurger({ ...currentBurger, ingredients: e.target.value });
+                                            }
+                                        }}
+                                        rows={3}
+                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 font-mono text-sm"
+                                        required
+                                    />
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        Insira como array JSON, ex: ["Pão", "Carne 120g", "Queijo"]
+                                    </p>
+                                </div>
 
+                                {/* Novo campo: Tags (como JSON) */}
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700">Tags (JSON)</label>
+                                    <textarea
+                                        value={typeof currentBurger.tags === 'string'
+                                            ? currentBurger.tags
+                                            : JSON.stringify(currentBurger.tags || [], null, 2)}
+                                        onChange={(e) => {
+                                            try {
+                                                const parsed = JSON.parse(e.target.value);
+                                                setCurrentBurger({ ...currentBurger, tags: parsed });
+                                            } catch {
+                                                setCurrentBurger({ ...currentBurger, tags: e.target.value });
+                                            }
+                                        }}
+                                        rows={2}
+                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-amber-500 focus:border-amber-500 font-mono text-sm"
+                                        required
+                                    />
+                                    <p className="mt-1 text-xs text-gray-500">
+                                        Insira como array JSON, ex: ["promoção", "novidade"]
+                                    </p>
+                                </div>
                                 <div className="mt-6 flex justify-end space-x-3">
                                     <button
                                         type="button"

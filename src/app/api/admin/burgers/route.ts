@@ -11,7 +11,7 @@ export async function GET() {
         const burgers = await prisma.burger.findMany({
             orderBy: { createdAt: 'desc' },
         });
-        
+
         return NextResponse.json(burgers);
     } catch (error) {
         console.error('Error fetching burgers:', error);
@@ -22,14 +22,14 @@ export async function GET() {
     }
 }
 
-export async function POST(request: Request) { 
-    try { 
+export async function POST(request: Request) {
+    try {
 
         const formData = await request.formData();
-        
+
         const imageFile = formData.get('image') as File;
         const additionalImages = formData.getAll('additionalImages') as File[];
-        
+
         const imagePath = await saveImage(imageFile, 'main');
         const additionalImagePaths = await Promise.all(
             additionalImages.map((file, index) => saveImage(file, `additional-${index}`))
@@ -39,6 +39,7 @@ export async function POST(request: Request) {
             name: formData.get('name') as string,
             description: formData.get('description') as string,
             price: parseFloat(formData.get('price') as string),
+            originalPrice: formData.get('originalPrice') ? parseFloat(formData.get('originalPrice') as string) : null,
             category: formData.get('category') as BurgerCategory,
             preparationTime: parseInt(formData.get('preparationTime') as string),
             calories: formData.get('calories') ? parseInt(formData.get('calories') as string) : null,
@@ -49,6 +50,8 @@ export async function POST(request: Request) {
             isNew: formData.get('isNew') === 'true',
             image: imagePath,
             images: JSON.stringify(additionalImagePaths),
+            ratingAverage: 0,
+            ratingCount: 0
         };
 
         const burger = await prisma.burger.create({
@@ -67,7 +70,7 @@ export async function POST(request: Request) {
 
 async function saveImage(file: File, prefix: string): Promise<string> {
     if (!file || file.size === 0) return '';
-    
+
     const uploadDir = path.join(process.cwd(), 'public', 'burgers');
     if (!fs.existsSync(uploadDir)) {
         fs.mkdirSync(uploadDir, { recursive: true });
@@ -76,8 +79,8 @@ async function saveImage(file: File, prefix: string): Promise<string> {
     const buffer = await file.arrayBuffer();
     const filename = `${prefix}-${Date.now()}-${file.name.replace(/\s+/g, '-')}`;
     const filePath = path.join(uploadDir, filename);
-    
+
     await fs.promises.writeFile(filePath, Buffer.from(buffer));
-    
+
     return `/burgers/${filename}`;
 }
