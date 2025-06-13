@@ -92,7 +92,7 @@ export default function BurgerListPage({ initialBurgers }: { initialBurgers: Bur
             <Header isTransparent={isHeaderTransparent} heroHeight={heroHeight} />
 
             <div ref={heroRef}>
-                <BurgerHero burgers={burgers} onAddToCart={addToCart} />
+                <BurgerHero burgers={burgers} />
             </div>
 
             <div className="container mx-auto px-4 py-8 pt-12">
